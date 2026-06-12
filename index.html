@@ -1257,14 +1257,13 @@
     const diffMs = Date.now() - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
     
-    if (diffSec < 0) {
-      return ': 1 sec';
+    if (diffSec <= 3) {
+      return `: ${Math.max(1, diffSec)} second${diffSec > 1 ? 's' : ''}`;
     }
-    if (diffSec <= 20) {
-      return `: ${Math.max(1, diffSec)} sec`;
+    if (diffSec <= 45) {
+      return ': a few seconds';
     }
-    
-    if (diffSec < 90) { // 21s to 90s
+    if (diffSec < 90) { // 46s to 90s
       return ': ~ 1 min';
     }
     

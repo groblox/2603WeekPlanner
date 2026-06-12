@@ -1254,15 +1254,52 @@
   // Dropbox Sync Helpers
   const formatSyncTime = (timestamp) => {
     if (!timestamp) return '';
-    const d = new Date(timestamp);
-    let hours = d.getHours();
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const ampm = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-    return `synced ${hours}:${minutes}${ampm} ${month}/${day}`;
+    const diffMs = Date.now() - timestamp;
+    const diffSec = Math.floor(diffMs / 1000);
+    
+    if (diffSec < 0) {
+      return 'synced: 1 sec ago';
+    }
+    if (diffSec <= 20) {
+      return `synced: ${Math.max(1, diffSec)} sec ago`;
+    }
+    
+    if (diffSec < 90) { // 21s to 90s
+      return 'synced: about a minute';
+    }
+    
+    const diffMin = Math.round(diffSec / 60);
+    
+    if (diffMin <= 15) {
+      const allowedMins = [1, 2, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+      const closestMin = allowedMins.reduce((prev, curr) => 
+        Math.abs(curr - diffMin) <= Math.abs(prev - diffMin) ? curr : prev
+      );
+      if (closestMin === 1) {
+        return 'synced: about a minute';
+      }
+      return `synced: about ${closestMin} minutes`;
+    }
+    
+    // Rough estimate from there
+    if (diffMin <= 22) {
+      return 'synced: about 20 minutes';
+    }
+    if (diffMin <= 40) {
+      return 'synced: about 30 minutes';
+    }
+    if (diffMin <= 50) {
+      return 'synced: about 45 minutes';
+    }
+    if (diffMin < 90) {
+      return 'synced: about an hour';
+    }
+    const diffHours = Math.round(diffMin / 60);
+    if (diffHours < 24) {
+      return `synced: about ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+    }
+    const diffDays = Math.round(diffHours / 24);
+    return `synced: about ${diffDays} day${diffDays > 1 ? 's' : ''}`;
   };
 
   const setDbSyncState = (state) => {
@@ -2254,6 +2291,18 @@
     setDbSyncState('disconnected');
     updateDbLastSyncTime(0);
   }
+
+  // Periodically update the relative sync timestamp
+  setInterval(() => {
+    const inlineSyncTime = document.getElementById('db-sync-time');
+    if (inlineSyncTime) {
+      if (!dbAccessToken || !lastSavedAt) {
+        inlineSyncTime.textContent = '';
+      } else {
+        inlineSyncTime.textContent = formatSyncTime(lastSavedAt);
+      }
+    }
+  }, 1000);
 })();
 </script>
 </body>

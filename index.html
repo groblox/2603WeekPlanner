@@ -1258,14 +1258,14 @@
     const diffSec = Math.floor(diffMs / 1000);
     
     if (diffSec < 0) {
-      return 'synced: 1 sec ago';
+      return ': 1 sec';
     }
     if (diffSec <= 20) {
-      return `synced: ${Math.max(1, diffSec)} sec ago`;
+      return `: ${Math.max(1, diffSec)} sec`;
     }
     
     if (diffSec < 90) { // 21s to 90s
-      return 'synced: about a minute';
+      return ': ~ 1 min';
     }
     
     const diffMin = Math.round(diffSec / 60);
@@ -1275,31 +1275,28 @@
       const closestMin = allowedMins.reduce((prev, curr) => 
         Math.abs(curr - diffMin) <= Math.abs(prev - diffMin) ? curr : prev
       );
-      if (closestMin === 1) {
-        return 'synced: about a minute';
-      }
-      return `synced: about ${closestMin} minutes`;
+      return `: ~ ${closestMin} min`;
     }
     
     // Rough estimate from there
     if (diffMin <= 22) {
-      return 'synced: about 20 minutes';
+      return ': ~ 20 min';
     }
     if (diffMin <= 40) {
-      return 'synced: about 30 minutes';
+      return ': ~ 30 min';
     }
     if (diffMin <= 50) {
-      return 'synced: about 45 minutes';
+      return ': ~ 45 min';
     }
     if (diffMin < 90) {
-      return 'synced: about an hour';
+      return ': ~ 1 hr';
     }
     const diffHours = Math.round(diffMin / 60);
     if (diffHours < 24) {
-      return `synced: about ${diffHours} hour${diffHours > 1 ? 's' : ''}`;
+      return `: ~ ${diffHours} hr`;
     }
     const diffDays = Math.round(diffHours / 24);
-    return `synced: about ${diffDays} day${diffDays > 1 ? 's' : ''}`;
+    return `: ~ ${diffDays} day${diffDays > 1 ? 's' : ''}`;
   };
 
   const setDbSyncState = (state) => {
